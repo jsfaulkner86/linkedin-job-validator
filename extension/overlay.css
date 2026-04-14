@@ -1,0 +1,92 @@
+#ljv-overlay {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 300px;
+  background: #f9f8f5;
+  border: 1px solid rgba(40,37,29,0.12);
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.12), 0 1px 4px rgba(0,0,0,0.06);
+  font-family: -apple-system, 'Segoe UI', sans-serif;
+  font-size: 13px;
+  z-index: 99999;
+  color: #28251d;
+  overflow: hidden;
+  transition: box-shadow 180ms ease;
+}
+#ljv-overlay:hover { box-shadow: 0 8px 32px rgba(0,0,0,0.15), 0 2px 8px rgba(0,0,0,0.08); }
+
+.ljv-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  cursor: pointer;
+  background: #f9f8f5;
+  user-select: none;
+}
+.ljv-header:hover { background: #f3f0ec; }
+
+.ljv-score-ring { position: relative; width: 44px; height: 44px; flex-shrink: 0; }
+.ljv-ring-svg { width: 44px; height: 44px; transform: rotate(-90deg); }
+.ljv-ring-bg  { fill: none; stroke: #dcd9d5; stroke-width: 3; }
+.ljv-ring-fill {
+  fill: none; stroke-width: 3;
+  stroke-linecap: round;
+  transition: stroke-dasharray 600ms ease;
+}
+.ljv-score-num {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; color: #28251d;
+}
+
+.ljv-header-info { flex: 1; min-width: 0; }
+.ljv-grade-badge {
+  display: inline-block;
+  font-size: 11px; font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  margin-bottom: 2px;
+}
+.ljv-header-sub { font-size: 11px; color: #7a7974; }
+
+.ljv-expand-btn {
+  background: none; border: none; cursor: pointer;
+  color: #7a7974; padding: 4px;
+  transition: transform 200ms ease, color 180ms ease;
+  border-radius: 4px;
+}
+.ljv-expand-btn:hover { color: #28251d; background: rgba(0,0,0,0.05); }
+
+.ljv-body { border-top: 1px solid #dcd9d5; }
+
+.ljv-fraud-flags {
+  padding: 10px 14px;
+  background: #fff0f4;
+  border-bottom: 1px solid #e8d0d8;
+}
+.ljv-fraud-title { font-size: 11px; font-weight: 700; color: #a12c7b; margin-bottom: 4px; }
+.ljv-fraud-item  { font-size: 11px; color: #561740; padding: 2px 0; }
+
+.ljv-signals-list { padding: 8px 14px; max-height: 240px; overflow-y: auto; }
+.ljv-signal {
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 0;
+  border-bottom: 1px solid #f0ede8;
+  font-size: 12px;
+}
+.ljv-signal:last-child { border-bottom: none; }
+.ljv-signal-icon { font-size: 12px; width: 14px; flex-shrink: 0; }
+.ljv-signal-label { flex: 1; color: #28251d; }
+.ljv-signal-pts { font-size: 11px; color: #7a7974; font-variant-numeric: tabular-nums; }
+.ljv-pass .ljv-signal-icon { color: #437a22; }
+.ljv-fail .ljv-signal-icon { color: #a12c7b; }
+.ljv-fail .ljv-signal-label { color: #7a7974; }
+
+.ljv-footer {
+  font-size: 10px; color: #bab9b4;
+  text-align: center;
+  padding: 8px 14px;
+  border-top: 1px solid #f0ede8;
+}
