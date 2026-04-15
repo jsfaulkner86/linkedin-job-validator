@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Job Validator</title>
+<style>
+:root{
+  --color-bg:#f7f6f2;--color-surface:#f9f8f5;
+  --color-text:#28251d;--color-text-muted:#7a7974;
+  --color-primary:#01696f;--color-divider:#dcd9d5;
+  --font-body:'system-ui',sans-serif;
+}
+body{
+  width:260px;min-height:120px;
+  font-family:var(--font-body);font-size:13px;
+  color:var(--color-text);background:var(--color-bg);
+  margin:0;padding:0;
+}
+.header{
+  display:flex;align-items:center;gap:10px;
+  padding:12px 14px;border-bottom:1px solid var(--color-divider);
+  background:var(--color-surface);
+}
+.logo{width:24px;height:24px;border-radius:6px;background:var(--color-primary);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.logo svg{display:block;}
+.title{font-weight:700;font-size:13px;}
+.sub{font-size:11px;color:var(--color-text-muted);}
+.body{padding:14px;}
+.status{font-size:12px;color:var(--color-text-muted);line-height:1.5;}
+.status a{color:var(--color-primary);text-decoration:none;}
+.status a:hover{text-decoration:underline;}
+.score-row{display:flex;align-items:center;gap:10px;padding:10px 0;}
+.score-big{font-size:28px;font-weight:800;color:var(--color-primary);line-height:1;}
+.score-label{font-size:11px;color:var(--color-text-muted);}
+.divider{border:none;border-top:1px solid var(--color-divider);margin:0;}
+.footer{padding:8px 14px;font-size:10px;color:var(--color-text-muted);}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="logo">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+  </div>
+  <div>
+    <div class="title">LinkedIn Job Validator</div>
+    <div class="sub">Validity Scoring Engine</div>
+  </div>
+</div>
+<div class="body">
+  <div id="content" class="status">Navigate to a LinkedIn job posting to see the validity score badge.</div>
+</div>
+<hr class="divider"/>
+<div class="footer">Faulkner Group &middot; v2.0 &middot; <a href="https://jsfaulkner86.github.io/linkedin-job-validator/demo/linkedin-job-validator-demo.html" target="_blank">Open Demo</a></div>
+<script>
+chrome.tabs.query({active:true,currentWindow:true},function(tabs){
+  const tab=tabs[0];
+  const el=document.getElementById('content');
+  if(!tab?.url?.includes('linkedin.com/jobs')){
+    el.innerHTML='Navigate to a <strong>LinkedIn Jobs</strong> page to activate the validator.';
+    return;
+  }
+  chrome.storage.session.get(['lastScore','lastTitle'],function(data){
+    if(data.lastScore!=null){
+      el.innerHTML=`
+        <div class="score-row">
+          <div class="score-big">${data.lastScore}</div>
+          <div><div style="font-weight:600;font-size:12px;color:#28251d">Validity Score</div><div class="score-label">${data.lastTitle||'Current job'}</div></div>
+        </div>
+        <div style="font-size:11px;color:#7a7974">Score badge is active on the page. Click it to expand signal breakdown.</div>
+      `;
+    } else {
+      el.innerHTML='Analyzing job posting&hellip; If the badge does not appear, <a href="https://jsfaulkner86.github.io/linkedin-job-validator/demo/linkedin-job-validator-demo.html" target="_blank">use the demo</a>.';
+    }
+  });
+});
+</script>
+</body>
+</html>
