@@ -8,18 +8,464 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300..700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-/* See full source in the downloaded demo file or the repo */
-/* This is a placeholder — the full 38KB demo is attached as a download above */
-body { font-family: 'DM Sans', sans-serif; background: #f7f6f2; color: #28251d; display: flex; align-items: center; justify-content: center; min-height: 100vh; text-align: center; }
-h1 { font-size: 1.5rem; margin-bottom: 1rem; }
-p { color: #7a7974; max-width: 42ch; margin: 0 auto; }
+/* ── DESIGN TOKENS ──────────────────────────────────────────────── */
+:root,[data-theme="light"]{
+  --color-bg:#f7f6f2;--color-surface:#f9f8f5;--color-surface-2:#fbfbf9;
+  --color-surface-offset:#f3f0ec;--color-divider:#dcd9d5;--color-border:rgba(40,37,29,0.12);
+  --color-text:#28251d;--color-text-muted:#7a7974;--color-text-faint:#bab9b4;
+  --color-primary:#01696f;--color-primary-hover:#0c4e54;--color-primary-highlight:#cedcd8;
+  --color-success:#437a22;--color-success-bg:#d4dfcc;
+  --color-gold:#d19900;--color-gold-bg:#e9e0c6;
+  --color-warning:#964219;--color-warning-bg:#ddcfc6;
+  --color-error:#a12c7b;--color-error-bg:#e0ced7;
+  --color-orange:#da7101;--color-orange-bg:#e7d7c4;
+  --shadow-sm:0 1px 2px rgba(40,37,29,0.06);
+  --shadow-md:0 4px 12px rgba(40,37,29,0.08);
+  --shadow-lg:0 12px 32px rgba(40,37,29,0.12);
+  --radius-sm:0.375rem;--radius-md:0.5rem;--radius-lg:0.75rem;--radius-xl:1rem;--radius-full:9999px;
+  --font-body:'DM Sans',system-ui,sans-serif;
+  --font-mono:'DM Mono',monospace;
+  --text-xs:clamp(0.75rem,0.7rem+0.25vw,0.875rem);
+  --text-sm:clamp(0.875rem,0.8rem+0.35vw,1rem);
+  --text-base:clamp(1rem,0.95rem+0.25vw,1.125rem);
+  --text-lg:clamp(1.125rem,1rem+0.75vw,1.5rem);
+  --text-xl:clamp(1.5rem,1.2rem+1.25vw,2.25rem);
+  --space-1:0.25rem;--space-2:0.5rem;--space-3:0.75rem;--space-4:1rem;
+  --space-5:1.25rem;--space-6:1.5rem;--space-8:2rem;--space-10:2.5rem;
+  --space-12:3rem;--space-16:4rem;
+}
+[data-theme="dark"]{
+  --color-bg:#171614;--color-surface:#1c1b19;--color-surface-2:#201f1d;
+  --color-surface-offset:#1d1c1a;--color-divider:#262523;--color-border:rgba(205,204,202,0.1);
+  --color-text:#cdccca;--color-text-muted:#797876;--color-text-faint:#5a5957;
+  --color-primary:#4f98a3;--color-primary-hover:#227f8b;--color-primary-highlight:#313b3b;
+  --color-success:#6daa45;--color-success-bg:#3a4435;
+  --color-gold:#e8af34;--color-gold-bg:#4d4332;
+  --color-warning:#bb653b;--color-warning-bg:#564942;
+  --color-error:#d163a7;--color-error-bg:#4c3d46;
+  --color-orange:#fdab43;--color-orange-bg:#564b3e;
+  --shadow-sm:0 1px 2px rgba(0,0,0,0.2);
+  --shadow-md:0 4px 12px rgba(0,0,0,0.3);
+  --shadow-lg:0 12px 32px rgba(0,0,0,0.4);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-font-smoothing:antialiased;scroll-behavior:smooth;}
+body{min-height:100dvh;font-family:var(--font-body);font-size:var(--text-base);color:var(--color-text);background:var(--color-bg);line-height:1.6;}
+img,svg{display:block;max-width:100%;}
+button{cursor:pointer;background:none;border:none;font:inherit;color:inherit;}
+input,textarea,select{font:inherit;color:inherit;}
+:focus-visible{outline:2px solid var(--color-primary);outline-offset:3px;border-radius:var(--radius-sm);}
+.container{max-width:960px;margin-inline:auto;padding-inline:var(--space-6);}
+.topbar{position:sticky;top:0;z-index:100;background:var(--color-surface);border-bottom:1px solid var(--color-divider);box-shadow:var(--shadow-sm);}
+.topbar-inner{display:flex;align-items:center;gap:var(--space-4);padding:var(--space-4) var(--space-6);max-width:960px;margin-inline:auto;}
+.logo-mark{display:flex;align-items:center;gap:var(--space-3);}
+.logo-name{font-size:var(--text-sm);font-weight:700;color:var(--color-text);}
+.logo-tagline{font-size:var(--text-xs);color:var(--color-text-muted);}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:var(--space-3);}
+.theme-btn{width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:var(--radius-md);color:var(--color-text-muted);transition:background 180ms ease,color 180ms ease;}
+.theme-btn:hover{background:var(--color-surface-offset);color:var(--color-text);}
+.hero{padding:clamp(var(--space-10),6vw,var(--space-16)) var(--space-6) var(--space-8);}
+.hero-inner{max-width:960px;margin-inline:auto;}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:var(--space-2);font-size:var(--text-xs);font-weight:600;color:var(--color-primary);background:var(--color-primary-highlight);padding:var(--space-1) var(--space-3);border-radius:var(--radius-full);margin-bottom:var(--space-4);text-transform:uppercase;letter-spacing:0.05em;}
+.hero h1{font-size:var(--text-xl);font-weight:700;line-height:1.15;margin-bottom:var(--space-4);color:var(--color-text);}
+.hero-sub{font-size:var(--text-base);color:var(--color-text-muted);max-width:58ch;line-height:1.65;}
+.main-grid{display:grid;grid-template-columns:1fr 360px;gap:var(--space-6);padding:0 var(--space-6) var(--space-16);max-width:960px;margin-inline:auto;align-items:start;}
+@media(max-width:768px){.main-grid{grid-template-columns:1fr;}}
+.panel{background:var(--color-surface);border:1px solid var(--color-divider);border-radius:var(--radius-xl);overflow:hidden;box-shadow:var(--shadow-sm);}
+.panel-header{display:flex;align-items:center;justify-content:space-between;padding:var(--space-4) var(--space-5);border-bottom:1px solid var(--color-divider);background:var(--color-surface-2);}
+.panel-title{font-size:var(--text-sm);font-weight:700;color:var(--color-text);}
+.panel-sub{font-size:var(--text-xs);color:var(--color-text-muted);}
+.panel-body{padding:var(--space-5);}
+.form-group{margin-bottom:var(--space-4);}
+.form-label{display:block;font-size:var(--text-xs);font-weight:600;color:var(--color-text-muted);margin-bottom:var(--space-2);text-transform:uppercase;letter-spacing:0.04em;}
+.form-input,.form-textarea,.form-select{width:100%;padding:var(--space-3) var(--space-4);background:var(--color-bg);border:1px solid var(--color-divider);border-radius:var(--radius-md);font-size:var(--text-sm);color:var(--color-text);transition:border-color 180ms ease,box-shadow 180ms ease;}
+.form-input:focus,.form-textarea:focus,.form-select:focus{border-color:var(--color-primary);box-shadow:0 0 0 3px var(--color-primary-highlight);outline:none;}
+.form-textarea{resize:vertical;min-height:180px;font-family:var(--font-body);line-height:1.6;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4);}
+.form-checkrow{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-2) 0;}
+.form-checkrow input[type=checkbox]{width:16px;height:16px;accent-color:var(--color-primary);cursor:pointer;}
+.form-checkrow label{font-size:var(--text-sm);cursor:pointer;}
+.btn-primary{width:100%;padding:var(--space-3) var(--space-5);background:var(--color-primary);color:#fff;border-radius:var(--radius-md);font-size:var(--text-sm);font-weight:600;transition:background 180ms ease,box-shadow 180ms ease;box-shadow:var(--shadow-sm);}
+.btn-primary:hover{background:var(--color-primary-hover);box-shadow:var(--shadow-md);}
+.presets{display:flex;flex-wrap:wrap;gap:var(--space-2);margin-bottom:var(--space-4);}
+.preset-btn{padding:var(--space-1) var(--space-3);border:1px solid var(--color-divider);border-radius:var(--radius-full);font-size:var(--text-xs);font-weight:500;color:var(--color-text-muted);background:var(--color-surface);transition:all 180ms ease;}
+.preset-btn:hover{border-color:var(--color-primary);color:var(--color-primary);background:var(--color-primary-highlight);}
+.score-panel{position:sticky;top:80px;}
+.score-hero{padding:var(--space-6) var(--space-5) var(--space-4);display:flex;flex-direction:column;align-items:center;text-align:center;background:var(--color-surface);}
+.score-ring-wrap{position:relative;width:96px;height:96px;margin-bottom:var(--space-4);}
+.ring-svg{width:96px;height:96px;transform:rotate(-90deg);}
+.ring-bg{fill:none;stroke:var(--color-divider);stroke-width:5;}
+.ring-fill{fill:none;stroke-width:5;stroke-linecap:round;transition:stroke-dasharray 600ms cubic-bezier(0.16,1,0.3,1);}
+.score-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;font-variant-numeric:tabular-nums;transition:color 300ms ease;}
+.grade-badge{font-size:var(--text-xs);font-weight:700;padding:var(--space-1) var(--space-4);border-radius:var(--radius-full);margin-bottom:var(--space-2);transition:all 300ms ease;}
+.score-label{font-size:var(--text-xs);color:var(--color-text-muted);}
+.cat-bars{padding:0 var(--space-5) var(--space-4);}
+.cat-row{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-2) 0;border-bottom:1px solid rgba(40,37,29,0.05);}
+.cat-row:last-child{border:none;}
+.cat-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.cat-label{font-size:var(--text-xs);color:var(--color-text-muted);width:90px;flex-shrink:0;}
+.cat-bar-track{flex:1;height:5px;background:var(--color-surface-offset);border-radius:var(--radius-full);overflow:hidden;}
+.cat-bar-fill{height:100%;border-radius:var(--radius-full);transition:width 600ms cubic-bezier(0.16,1,0.3,1);}
+.cat-pts{font-size:var(--text-xs);color:var(--color-text-muted);width:32px;text-align:right;font-variant-numeric:tabular-nums;font-family:var(--font-mono);}
+.fraud-block{margin:0 var(--space-5) var(--space-4);padding:var(--space-3) var(--space-4);background:var(--color-error-bg);border-radius:var(--radius-md);border:1px solid rgba(161,44,123,0.2);}
+.fraud-title{font-size:var(--text-xs);font-weight:700;color:var(--color-error);margin-bottom:var(--space-2);}
+.fraud-item{font-size:var(--text-xs);color:var(--color-error);padding:2px 0;display:flex;gap:var(--space-2);}
+.signals-section{border-top:1px solid var(--color-divider);}
+.signals-toggle{display:flex;align-items:center;justify-content:space-between;width:100%;padding:var(--space-3) var(--space-5);font-size:var(--text-xs);font-weight:700;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:0.04em;border-radius:0;transition:background 180ms ease;}
+.signals-toggle:hover{background:var(--color-surface-offset);}
+.signals-list{padding:var(--space-2) var(--space-5) var(--space-3);}
+.signal-row{display:flex;align-items:flex-start;gap:var(--space-2);padding:var(--space-2) 0;border-bottom:1px solid rgba(40,37,29,0.05);}
+.signal-row:last-child{border:none;}
+.signal-icon{font-size:11px;padding-top:2px;flex-shrink:0;width:14px;}
+.signal-text{flex:1;font-size:12px;line-height:1.4;}
+.signal-pts{font-size:11px;color:var(--color-text-muted);font-family:var(--font-mono);flex-shrink:0;}
+.signal-detail{font-size:11px;color:var(--color-text-muted);margin-top:2px;}
+.pass .signal-icon{color:var(--color-success);}
+.fail .signal-icon{color:var(--color-error);}
+.fail .signal-text{color:var(--color-text-muted);}
+.empty-state{padding:var(--space-10) var(--space-5);text-align:center;color:var(--color-text-muted);}
+.empty-state-icon{font-size:32px;margin-bottom:var(--space-3);}
+.empty-state h3{font-size:var(--text-sm);font-weight:600;color:var(--color-text);margin-bottom:var(--space-2);}
+.empty-state p{font-size:var(--text-xs);}
+.how-section{padding:var(--space-8) var(--space-6) var(--space-16);max-width:960px;margin-inline:auto;}
+.section-title{font-size:var(--text-lg);font-weight:700;margin-bottom:var(--space-6);color:var(--color-text);}
+.signal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:var(--space-4);}
+.signal-card{background:var(--color-surface);border:1px solid var(--color-divider);border-radius:var(--radius-lg);padding:var(--space-4);box-shadow:var(--shadow-sm);}
+.signal-card-cat{font-size:var(--text-xs);font-weight:600;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:var(--space-2);}
+.signal-card-name{font-size:var(--text-sm);font-weight:600;color:var(--color-text);margin-bottom:var(--space-1);}
+.signal-card-pts{font-size:var(--text-xs);color:var(--color-text-muted);}
+.chevron{transition:transform 200ms ease;}
+.chevron.open{transform:rotate(180deg);}
 </style>
 </head>
 <body>
-<div>
-  <h1>🔍 LinkedIn Job Validator Demo</h1>
-  <p>Download the <code>linkedin-job-validator-demo.html</code> file from the releases/assets or clone this repo and open <code>demo/linkedin-job-validator-demo.html</code> locally in any browser.</p>
-  <p style="margin-top:1rem">The full interactive demo includes 4 presets (Legit, Suspicious, Ghost Job, Scam) and live scoring.</p>
+
+<header class="topbar">
+  <nav class="topbar-inner">
+    <div class="logo-mark">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-label="Job Validator">
+        <rect width="32" height="32" rx="8" fill="var(--color-primary)"/>
+        <path d="M9 16l5 5 9-9" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="23" cy="9" r="4.5" fill="white" opacity="0.12"/>
+        <path d="M20.5 9h5M23 6.5v5" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <div>
+        <div class="logo-name">LinkedIn Job Validator</div>
+        <div class="logo-tagline">Validity Scoring Engine · Demo</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <button class="theme-btn" data-theme-toggle aria-label="Switch to dark mode">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      Chrome Extension · MV3
+    </div>
+    <h1>Score any LinkedIn job<br>posting for validity signals</h1>
+    <p class="hero-sub">Paste a job description and configure company signals to see how the scoring engine evaluates it across 8 weighted dimensions — company legitimacy, posting quality, application hygiene, and fraud pattern detection.</p>
+  </div>
+</section>
+
+<div class="main-grid">
+  <div>
+    <div class="panel">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Job Posting Input</div>
+          <div class="panel-sub">Simulate what the extension scrapes from LinkedIn</div>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div class="presets">
+          <span style="font-size:var(--text-xs);color:var(--color-text-muted);padding:var(--space-1) 0;">Try a preset:</span>
+          <button class="preset-btn" onclick="loadPreset('legit')">✅ Legitimate Posting</button>
+          <button class="preset-btn" onclick="loadPreset('suspicious')">⚠️ Suspicious Posting</button>
+          <button class="preset-btn" onclick="loadPreset('ghost')">👻 Ghost Job</button>
+          <button class="preset-btn" onclick="loadPreset('scam')">🚨 Clear Scam</button>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="job-title">Job Title</label>
+          <input class="form-input" id="job-title" type="text" placeholder="e.g. Senior Software Engineer" value="Senior Data Engineer"/>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="company-name">Company</label>
+            <input class="form-input" id="company-name" type="text" placeholder="Acme Corp" value="Meridian Health Systems"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="employee-count">Employee Count</label>
+            <select class="form-select" id="employee-count">
+              <option value="">Unknown</option>
+              <option value="1">1 (self-employed)</option>
+              <option value="2-10">2–10</option>
+              <option value="11-50">11–50</option>
+              <option value="51-200">51–200</option>
+              <option value="201-500" selected>201–500</option>
+              <option value="501-1000">501–1,000</option>
+              <option value="1001-5000">1,001–5,000</option>
+              <option value="5001+">5,001+</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="apply-url">Apply Link URL</label>
+            <input class="form-input" id="apply-url" type="text" placeholder="https://careers.company.com/..." value="https://meridianhealth.com/careers/apply/8821"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="company-domain">Company Domain</label>
+            <input class="form-input" id="company-domain" type="text" placeholder="company.com" value="meridianhealth.com"/>
+          </div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:var(--space-2);margin-bottom:var(--space-4);">
+          <div class="form-checkrow">
+            <input type="checkbox" id="is-verified" checked/>
+            <label for="is-verified">LinkedIn Verified Company</label>
+          </div>
+          <div class="form-checkrow" style="margin-left:var(--space-4);">
+            <input type="checkbox" id="has-website" checked/>
+            <label for="has-website">Company Website Listed</label>
+          </div>
+          <div class="form-checkrow" style="margin-left:var(--space-4);">
+            <input type="checkbox" id="easy-apply"/>
+            <label for="easy-apply">LinkedIn Easy Apply</label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="job-desc">Job Description</label>
+          <textarea class="form-textarea" id="job-desc" rows="10">We are hiring a Senior Data Engineer to join the Data Platform team at Meridian Health Systems. Reporting to the VP of Engineering, you will architect and maintain our FHIR R4 data pipelines, Epic integration layers, and clinical analytics infrastructure.
+
+Responsibilities:
+- Design and build scalable ETL/ELT pipelines using Apache Spark and dbt
+- Maintain Epic EHR integration (HL7 v2, FHIR R4) and ensure data fidelity
+- Collaborate with clinical informatics and analytics teams to deliver real-time reporting
+- Enforce HIPAA compliance and PHI governance across all data assets
+
+Requirements:
+- 5+ years of data engineering experience
+- Bachelor's degree in Computer Science, Engineering, or related field
+- Proficiency in Python, SQL, and Spark
+- Experience with Epic or HL7 FHIR integration preferred
+- Knowledge of healthcare data standards (OMOP, FHIR, HL7)
+
+Compensation: $130,000 – $165,000 + equity + comprehensive benefits (health, dental, 401k, PTO)
+
+Location: Remote (US) or hybrid in Detroit, MI</textarea>
+        </div>
+        <button class="btn-primary" onclick="runScore()">Analyze Job Posting →</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="score-panel">
+    <div class="panel" id="score-panel">
+      <div class="score-hero" id="score-hero">
+        <div class="empty-state">
+          <div class="empty-state-icon">🔍</div>
+          <h3>No score yet</h3>
+          <p>Fill in the job posting details and click Analyze</p>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
+
+<section class="how-section">
+  <h2 class="section-title">Signal Architecture</h2>
+  <div class="signal-grid" id="signal-grid"></div>
+</section>
+
+<script>
+const FRAUD_PATTERNS=[
+  {pattern:/earn(ing)?\s+\$[\d,]+\s*(per|a|\/)\s*(hour|day|week|month)/i,label:'Unrealistic earnings promise'},
+  {pattern:/work from home.*\$[\d,]+/i,label:'WFH income claim'},
+  {pattern:/be your own boss/i,label:'"Be your own boss" language'},
+  {pattern:/no experience (needed|required|necessary)/i,label:'No experience required'},
+  {pattern:/(upfront|up-front)\s*(fee|payment|cost|investment)/i,label:'Upfront payment required'},
+  {pattern:/training fee/i,label:'Training fee mentioned'},
+  {pattern:/wire transfer/i,label:'Wire transfer mentioned'},
+  {pattern:/guaranteed (income|salary|pay|earning)/i,label:'Guaranteed income claim'},
+  {pattern:/unlimited (earning|income|potential|commission)/i,label:'Unlimited earnings claim'},
+  {pattern:/multi.?level marketing|network marketing|direct sales opportunity/i,label:'MLM/network marketing'},
+  {pattern:/pyramid scheme|ponzi/i,label:'Pyramid scheme reference'},
+  {pattern:/invest(ment)? required|buy your (starter|kit)/i,label:'Investment required'},
+  {pattern:/\b(get rich|passive income|financial freedom)\b/i,label:'Get-rich language'},
+  {pattern:/home.based business opportunity/i,label:'Home-based "opportunity"'},
+];
+const QUALITY_INDICATORS={
+  hasYearsExperience:/\d+\+?\s*years?(\s+of)?\s+experience/i,
+  hasDegreeReq:/bachelor|master|phd|mba|degree|b\.s\.|m\.s\.|associate/i,
+  hasCertReq:/certification|certified|license|credential/i,
+  hasTeamStructure:/report(s|ing)?\s+to|team\s+of\s+\d+|work(ing)?\s+with\s+\w+\s+team/i,
+  hasResponsibilities:/you\s+will\s+(be|have)|responsibilities\s+(include|:)|key\s+duties/i,
+  hasSalaryRange:/\$[\d,]+\s*[-–—]\s*\$[\d,]+|\$[\d,]+k?\s*[-–]\s*\$?[\d,]+k?|salary.{1,30}range|compensation.{1,30}range/i,
+};
+const SUSPICIOUS_DOMAINS=['bit.ly','tinyurl.com','goo.gl','t.co','ow.ly','rebrand.ly','click.','redirect.','track.','apply-now.'];
+
+function parseEmployeeScore(ec){
+  if(!ec)return 0;
+  const s=ec.toLowerCase().replace(/,/g,'');
+  if(/1.?employee|self.employed|^1$/.test(s))return 0;
+  if(/2.?10/.test(s))return 2;
+  if(/11.?50/.test(s))return 4;
+  if(/51.?200/.test(s))return 6;
+  if(/201.?500/.test(s))return 7;
+  if(/501|1000|5000|10000|50000/.test(s))return 8;
+  return 3;
+}
+
+function scoreJobPosting(data){
+  const signals=[],fraudFlags=[];
+  function add(id,label,category,earned,max,passed,detail=''){signals.push({id,label,category,earned,max,passed,detail});}
+  add('verified_company','Company verified by LinkedIn','company',data.isVerifiedCompany?15:0,15,!!data.isVerifiedCompany,data.isVerifiedCompany?'LinkedIn verification badge present':'No verification badge detected');
+  const ss=parseEmployeeScore(data.employeeCount);
+  add('company_size','Company has substantial employee presence','company',ss,8,ss>=5,data.employeeCount?`${data.employeeCount} employees`:'Employee count not listed');
+  add('company_website','Company website linked on profile','company',data.hasCompanyWebsite?7:0,7,!!data.hasCompanyWebsite,data.hasCompanyWebsite?'Company has a linked website':'No company website found');
+  const desc=data.description||'';
+  const dl=desc.length;
+  const ds=dl>600?8:dl>300?5:dl>100?2:0;
+  add('description_length','Detailed job description','posting',ds,8,dl>300,`~${dl} characters`);
+  const hasSalary=data.salaryDisclosed||QUALITY_INDICATORS.hasSalaryRange.test(desc);
+  add('salary_disclosed','Salary / compensation range disclosed','posting',hasSalary?12:0,12,hasSalary,hasSalary?'Salary range found':'No salary information provided');
+  const hasQual=QUALITY_INDICATORS.hasYearsExperience.test(desc)||QUALITY_INDICATORS.hasDegreeReq.test(desc)||QUALITY_INDICATORS.hasCertReq.test(desc);
+  add('qualifications','Specific qualifications listed','posting',hasQual?8:0,8,hasQual,hasQual?'Education/experience requirements present':'No clear qualifications stated');
+  const hasResp=QUALITY_INDICATORS.hasResponsibilities.test(desc)||QUALITY_INDICATORS.hasTeamStructure.test(desc);
+  add('responsibilities','Clear responsibilities defined','posting',hasResp?7:0,7,hasResp,hasResp?'Job duties and team context found':'Responsibilities unclear or vague');
+  let applyScore=0,applyDetail='';
+  if(data.isEasyApply){applyScore=10;applyDetail='LinkedIn Easy Apply (internal)';}
+  else if(data.applyUrl&&data.companyDomain){
+    const match=data.applyUrl.toLowerCase().includes(data.companyDomain.toLowerCase());
+    const susp=SUSPICIOUS_DOMAINS.some(d=>data.applyUrl.toLowerCase().includes(d));
+    if(susp){applyScore=0;applyDetail='Suspicious redirect URL';fraudFlags.push({severity:'high',label:'Apply link uses a redirect/shortener'});}
+    else if(match){applyScore=20;applyDetail='Apply link matches company domain';}
+    else{applyScore=8;applyDetail='External careers platform (domain unverified)';}
+  }else if(data.applyUrl){
+    const susp=SUSPICIOUS_DOMAINS.some(d=>data.applyUrl.toLowerCase().includes(d));
+    applyScore=susp?0:6;applyDetail=susp?'URL shortener — high risk':'External link, domain not confirmed';
+    if(susp)fraudFlags.push({severity:'high',label:'Apply URL uses a shortener'});
+  }
+  add('apply_process','Application process is legitimate','application',applyScore,20,applyScore>=6,applyDetail);
+  const fm=FRAUD_PATTERNS.filter(f=>f.pattern.test(desc));
+  fm.forEach(f=>fraudFlags.push({severity:'critical',label:f.label}));
+  const fs=Math.max(0,15-Math.min(fm.length*5,15));
+  add('fraud_patterns','No fraudulent language patterns','fraud',fs,15,fm.length===0,fm.length===0?'No suspicious phrases detected':`${fm.length} flag(s): ${fm.slice(0,2).map(f=>f.label).join(', ')}`);
+  const te=signals.reduce((s,x)=>s+x.earned,0),tm=signals.reduce((s,x)=>s+x.max,0);
+  const score=Math.round((te/tm)*100);
+  const grade=score>=80?{label:'High Confidence',color:'var(--color-success)',bg:'var(--color-success-bg)'}:score>=60?{label:'Moderate Signal',color:'var(--color-gold)',bg:'var(--color-gold-bg)'}:score>=40?{label:'Low Confidence',color:'var(--color-warning)',bg:'var(--color-warning-bg)'}:{label:'High Risk',color:'var(--color-error)',bg:'var(--color-error-bg)'};
+  const categories={};
+  signals.forEach(s=>{if(!categories[s.category])categories[s.category]={earned:0,max:0,signals:[]};categories[s.category].earned+=s.earned;categories[s.category].max+=s.max;categories[s.category].signals.push(s);});
+  return{score,grade,signals,categories,fraudFlags,totalEarned:te,totalMax:tm};
+}
+
+const CAT_COLORS={company:'#01696f',posting:'#437a22',application:'#d19900',fraud:'#a12c7b'};
+const CAT_LABELS={company:'Company',posting:'Posting Quality',application:'Apply Process',fraud:'Fraud Check'};
+
+function runScore(){
+  const data={
+    title:document.getElementById('job-title').value,
+    company:document.getElementById('company-name').value,
+    description:document.getElementById('job-desc').value,
+    isVerifiedCompany:document.getElementById('is-verified').checked,
+    employeeCount:document.getElementById('employee-count').value,
+    hasCompanyWebsite:document.getElementById('has-website').checked,
+    salaryDisclosed:false,
+    applyUrl:document.getElementById('apply-url').value,
+    companyDomain:document.getElementById('company-domain').value,
+    isEasyApply:document.getElementById('easy-apply').checked,
+  };
+  renderScore(scoreJobPosting(data));
+}
+
+function renderScore(result){
+  const{score,grade,signals,categories,fraudFlags}=result;
+  const circ=2*Math.PI*40,filled=(score/100)*circ;
+  const fraudHtml=fraudFlags.length?`<div class="fraud-block"><div class="fraud-title">⚠ ${fraudFlags.length} Risk Flag${fraudFlags.length>1?'s':''} Detected</div>${fraudFlags.map(f=>`<div class="fraud-item"><span>·</span><span>${f.label}</span></div>`).join('')}</div>`:'';
+  const catHtml=Object.entries(categories).map(([key,cat])=>{const pct=cat.max>0?(cat.earned/cat.max)*100:0;const color=CAT_COLORS[key]||'#01696f';return`<div class="cat-row"><div class="cat-dot" style="background:${color}"></div><span class="cat-label">${CAT_LABELS[key]||key}</span><div class="cat-bar-track"><div class="cat-bar-fill" style="width:${pct}%;background:${color}"></div></div><span class="cat-pts">${cat.earned}/${cat.max}</span></div>`;}).join('');
+  const signalsHtml=signals.map(s=>`<div class="signal-row ${s.passed?'pass':'fail'}"><span class="signal-icon">${s.passed?'✓':'✗'}</span><div style="flex:1;min-width:0;"><div class="signal-text">${s.label}</div>${s.detail?`<div class="signal-detail">${s.detail}</div>`:''}</div><span class="signal-pts">${s.earned}/${s.max}</span></div>`).join('');
+  document.getElementById('score-panel').innerHTML=`
+    <div class="score-hero">
+      <div class="score-ring-wrap">
+        <svg class="ring-svg" viewBox="0 0 100 100" aria-hidden="true">
+          <circle class="ring-bg" cx="50" cy="50" r="40"/>
+          <circle class="ring-fill" cx="50" cy="50" r="40" stroke="${grade.color}" stroke-dasharray="${filled.toFixed(1)} ${circ.toFixed(1)}"/>
+        </svg>
+        <div class="score-num" style="color:${grade.color}">${score}</div>
+      </div>
+      <div class="grade-badge" style="color:${grade.color};background:${grade.bg}">${grade.label}</div>
+      <div class="score-label">Validity Score · ${score} / 100</div>
+    </div>
+    <div class="cat-bars">${catHtml}</div>
+    ${fraudHtml}
+    <div class="signals-section">
+      <button class="signals-toggle" onclick="toggleSignals(this)" aria-expanded="false">
+        <span>Signal Breakdown (${signals.length})</span>
+        <svg class="chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="signals-list" hidden id="signals-body">${signalsHtml}</div>
+    </div>`;
+}
+
+function toggleSignals(btn){
+  const body=document.getElementById('signals-body');
+  const chevron=btn.querySelector('.chevron');
+  const open=body.hidden;
+  body.hidden=!open;
+  chevron.classList.toggle('open',open);
+  btn.setAttribute('aria-expanded',String(open));
+}
+
+const ALL_SIGNALS=[
+  {id:'verified_company',label:'Company Verified',cat:'company',max:15,desc:'LinkedIn verification badge'},
+  {id:'company_size',label:'Employee Presence',cat:'company',max:8,desc:'50+ employees on LinkedIn'},
+  {id:'company_website',label:'Website Linked',cat:'company',max:7,desc:'Company website on profile'},
+  {id:'description_length',label:'Description Depth',cat:'posting',max:8,desc:'300+ character description'},
+  {id:'salary_disclosed',label:'Salary Disclosed',cat:'posting',max:12,desc:'Compensation range provided'},
+  {id:'qualifications',label:'Qualifications',cat:'posting',max:8,desc:'Specific edu/experience req'},
+  {id:'responsibilities',label:'Responsibilities',cat:'posting',max:7,desc:'Clear duties & team context'},
+  {id:'apply_process',label:'Apply Hygiene',cat:'application',max:20,desc:'Domain match or Easy Apply'},
+  {id:'fraud_patterns',label:'Fraud Patterns',cat:'fraud',max:15,desc:'14 suspicious phrase checks'},
+];
+document.getElementById('signal-grid').innerHTML=ALL_SIGNALS.map(s=>`<div class="signal-card"><div class="signal-card-cat" style="color:${CAT_COLORS[s.cat]}">${CAT_LABELS[s.cat]}</div><div class="signal-card-name">${s.label}</div><div class="signal-card-pts">Up to ${s.max} pts — ${s.desc}</div></div>`).join('');
+
+const PRESETS={
+  legit:{title:'Senior Software Engineer',company:'Stripe',employees:'1001-5000',domain:'stripe.com',applyUrl:'https://stripe.com/jobs/listing/senior-software-engineer/123',verified:true,website:true,easyApply:false,desc:`We are looking for a Senior Software Engineer to join the Payments Infrastructure team at Stripe.\n\nReporting to the Engineering Manager, you will design and scale systems that process billions of dollars in transactions daily.\n\nResponsibilities:\n- Architect fault-tolerant distributed systems for payment processing\n- Lead technical design reviews and mentor junior engineers\n- Drive reliability improvements and reduce incidents in production\n\nRequirements:\n- 7+ years of software engineering experience\n- Bachelor's or Master's degree in Computer Science or equivalent\n- Proficiency in Go, Java, or Ruby — experience with distributed systems\n- Experience with large-scale backend systems and microservices\n\nCompensation: $195,000 – $280,000 base + equity + benefits (health, dental, vision, 401k, parental leave)\n\nLocation: Hybrid — San Francisco, CA or Remote (US)`},
+  suspicious:{title:'Business Development Representative',company:'OpportunityNow LLC',employees:'2-10',domain:'',applyUrl:'https://bit.ly/apply-now-opp1234',verified:false,website:false,easyApply:false,desc:`Exciting opportunity! Join our growing team. Be your own boss and set your own hours.\n\nWe are looking for motivated self-starters. No experience required — we will train you!\n\nResponsibilities:\n- Connect with potential clients\n- Present our award-winning products\n- Build your own team below you\n\nEarn $2,500 per week guaranteed. Unlimited earning potential! 100% commission.\n\nTraining fee of $199 required to access materials.`},
+  ghost:{title:'Product Manager',company:'TechCorp Inc',employees:'201-500',domain:'techcorp.com',applyUrl:'https://techcorp.com/careers',verified:false,website:true,easyApply:false,desc:`TechCorp is looking for a Product Manager to join our growing team.\n\nYou will work with cross-functional teams to deliver products. Strong communication skills required.\n\nRequirements:\n- Experience in product management\n- Strong analytical skills\n- Ability to work independently\n\nWe offer competitive compensation and benefits.`},
+  scam:{title:'Work From Home Data Entry Specialist',company:'HomeBiz Solutions',employees:'1',domain:'',applyUrl:'https://tinyurl.com/wfh-apply99',verified:false,website:false,easyApply:false,desc:`URGENT HIRING! Work from home and earn $500–$1,500 per day guaranteed!\n\nNo experience needed! Be your own boss — set your own schedule!\n\nThis is a home-based business opportunity with unlimited earning potential. Join our network marketing family today!\n\nInvestment required: Purchase your starter kit for $299. Get rich fast with our proven system. Passive income stream from day one.\n\nWire transfer payments available. Limited spots!`}
+};
+
+function loadPreset(name){
+  const p=PRESETS[name];if(!p)return;
+  document.getElementById('job-title').value=p.title;
+  document.getElementById('company-name').value=p.company;
+  document.getElementById('employee-count').value=p.employees;
+  document.getElementById('apply-url').value=p.applyUrl;
+  document.getElementById('company-domain').value=p.domain;
+  document.getElementById('is-verified').checked=p.verified;
+  document.getElementById('has-website').checked=p.website;
+  document.getElementById('easy-apply').checked=p.easyApply;
+  document.getElementById('job-desc').value=p.desc;
+  runScore();
+}
+
+(function(){
+  const btn=document.querySelector('[data-theme-toggle]');
+  const root=document.documentElement;
+  let dark=matchMedia('(prefers-color-scheme:dark)').matches;
+  root.setAttribute('data-theme',dark?'dark':'light');
+  function update(){root.setAttribute('data-theme',dark?'dark':'light');btn.setAttribute('aria-label',`Switch to ${dark?'light':'dark'} mode`);btn.innerHTML=dark?'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>':'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';}
+  update();
+  btn.addEventListener('click',()=>{dark=!dark;update();});
+})();
+
+window.addEventListener('load',()=>setTimeout(runScore,100));
+</script>
 </body>
 </html>
